@@ -186,6 +186,7 @@ class WalletController extends Controller
             ]);
 
             return response()->json([
+                'status' => 'success',
                 'message' => 'Payment initiated',
                 'transaction' => new TransactionResource($transaction),
                 'payment_url' => $response->json('data.authorization_url'),
@@ -201,6 +202,7 @@ class WalletController extends Controller
         $transaction->save();
 
         return response()->json([
+            'status' => 'failed',
             'message' => 'Failed to initialize payment',
             'transaction' => new TransactionResource($transaction),
             'error' => $response->json('message') ?? 'Payment provider error',
@@ -230,6 +232,8 @@ class WalletController extends Controller
         // Verify with Paystack
         $response = Http::withToken(config('services.paystack.secret_key'))
             ->get("https://api.paystack.co/transaction/verify/{$reference}");
+
+        // $response->dd();
 
         if ($response->successful() && $response->json('status')) {
             $paymentData = $response->json('data');

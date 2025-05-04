@@ -76,8 +76,8 @@ class User extends Authenticatable
     /**
      * Check if the user is an admin.
      */
-    public function scopeIsAdmin($query)
+    public function scopeIsAdmin()
     {
-        return $query->where('is_admin', true);
+        return $this->is_admin == true;
     }
 }

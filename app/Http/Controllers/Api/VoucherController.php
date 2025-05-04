@@ -151,12 +151,13 @@ class VoucherController extends Controller
 
         if (!$voucher) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Invalid voucher code',
             ], 404);
         }
 
         // Check if voucher is valid
-        if (!$voucher->isValid() && $voucher->status !== 'paused' && $voucher->status !== 'unused') {
+        if (!$voucher->isValid() && $voucher->status !== 'paused' && $voucher->status !== 'unused' && $voucher->status !== 'active') {
             return response()->json([
                 'message' => 'This voucher has expired',
                 'status' => $voucher->status,
@@ -176,6 +177,7 @@ class VoucherController extends Controller
             }
 
             return response()->json([
+                'status' => 'error',
                 'message' => 'Failed to authenticate device',
             ], 500);
         }
@@ -183,11 +185,13 @@ class VoucherController extends Controller
         // Make sure voucher is activated
         if (!$voucher->activate()) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Failed to activate voucher',
             ], 500);
         }
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Device authenticated successfully',
             'voucher' => new VoucherResource($voucher->refresh()->load('servicePlan')),
             'device_session' => new DeviceSessionResource($deviceSession),
